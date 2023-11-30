@@ -1,8 +1,9 @@
-const core = require('@actions/core');
-const tc = require('@actions/tool-cache');
-const exec = require('@actions/exec');
-const path = require('path');
-const fs = require('fs').promises;
+import core from "@actions/core";
+import tc from "@actions/tool-cache";
+import exec from "@actions/exec";
+import path from "path";
+import fs from "fs/promises"
+import {arch} from "os";
 
 const isLinux = process.platform === 'linux';
 const isDarwin = process.platform === 'darwin';
@@ -16,33 +17,28 @@ function assertPlatformSupported()
     }
 }
 
-function getExecutablePath(directory)
+function getExecutablePath(directory: string)
 {
     const extension = isWin32 ? "exe" : "sh";
-    return path.join(directory, 'steamcmd.' + extension);
+    return path.join(directory, `steamcmd.${extension}`);
+}
+
+function getArchiveName()
+{
+    if (isLinux) return 'steamcmd_linux.tar.gz';
+    if (isDarwin) return 'steamcmd_osx.tar.gz';
+    if (isWin32) return 'steamcmd.zip';
+
+    throw new Error('Unsupported platform');
 }
 
 function getDownloadUrl()
 {
-    let archiveName;
-
-    if (isLinux)
-    {
-        archiveName = 'steamcmd_linux.tar.gz';
-    }
-    else if (isDarwin)
-    {
-        archiveName = 'steamcmd_osx.tar.gz';
-    }
-    else if (isWin32)
-    {
-        archiveName = 'steamcmd.zip';
-    }
-
-    return ['https://steamcdn-a.akamaihd.net/client/installer/' + archiveName, archiveName];
+    const archiveName = getArchiveName();
+    return [`https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`, archiveName];
 }
 
-function getInfo(installDir)
+function getInfo(installDir: string)
 {
     return isWin32 ?
     {
@@ -53,7 +49,7 @@ function getInfo(installDir)
     {
         directory: installDir,
         executable: getExecutablePath(installDir),
-        binDirectory: path.join(installDir, 'bin'),
+        binDirectory: path.join(installDir, "bin"),
     };
 }
 
@@ -64,6 +60,7 @@ async function installDependencies()
     if(isLinux)
     {
         await installLinuxDependencies();
+        return;
     }
 }
 
@@ -90,18 +87,29 @@ async function installLinuxDependencies()
             { ignoreReturnCode: true }
         );
 
-        if(status !== 0)
-        {
-            throw new Error(`Failed to install ${packageToInstall}.`);
+        if (status === 0) {
+            core.info(`${packageToInstall} was already installed!`);
+            continue;
         }
 
-        core.info(`Failed to update ${packageToInstall}, using installed version. This is the intended behavior for a rootless user.`);
+        throw new Error(`Failed to install ${packageToInstall}. See apt-get log.`);
     }
 }
 
 function getTempDirectory()
 {
     return process.env['RUNNER_TEMP'] ?? (() => { throw new Error('Expected RUNNER_TEMP to be defined') })();
+}
+
+async function extractArchive(archivePath: string) {
+    core.info('Extracting ...');
+
+    if (isWin32)
+    {
+        return await tc.extractZip(archivePath, 'steamcmd');
+    }
+
+    return await tc.extractTar(archivePath, 'steamcmd');
 }
 
 async function install()
@@ -115,20 +123,7 @@ async function install()
     // Why we need to set the destination directory: https://github.com/CyberAndrii/setup-steamcmd/issues/5
     const archivePath = await tc.downloadTool(downloadUrl, path.join(getTempDirectory(), archiveName));
 
-    //
-    // Extract
-    //
-    core.info('Extracting ...');
-    let extractDir;
-
-    if (isWin32)
-    {
-        extractDir = await tc.extractZip(archivePath, 'steamcmd');
-    }
-    else
-    {
-        extractDir = await tc.extractTar(archivePath, 'steamcmd');
-    }
+    const extractDir = await extractArchive(archivePath);
 
     //
     // Cache
@@ -176,16 +171,13 @@ async function installIfNeed()
     if(installDir)
     {
         core.info(`Found in cache @ ${installDir}`);
-
         return getInfo(installDir);
     }
-    else
-    {
-        return await install();
-    }
+
+    return await install();
 }
 
-async function run()
+async function main()
 {
     try
     {
@@ -204,4 +196,4 @@ async function run()
     }
 }
 
-run();
+void main();
