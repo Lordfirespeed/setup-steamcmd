@@ -6,6 +6,6 @@ npm install
 npm run build
 
 act \
---platform ubuntu-latest=nektos/act-environments-ubuntu:18.04 \
---platform ubuntu-18.04=nektos/act-environments-ubuntu:18.04 \
+--platform ubuntu-latest=ubuntu-latest \
+--platform ubuntu-20.04=node:16-buster-slim
 "$@"
