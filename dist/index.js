@@ -28460,172 +28460,6 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 6144:
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) {
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-const core = __nccwpck_require__(2186);
-const tc = __nccwpck_require__(7784);
-const exec = __nccwpck_require__(1514);
-const path = __nccwpck_require__(1017);
-const fs = (__nccwpck_require__(7147).promises);
-const isLinux = process.platform === 'linux';
-const isDarwin = process.platform === 'darwin';
-const isWin32 = process.platform === 'win32';
-function assertPlatformSupported() {
-    if (!(isLinux || isDarwin || isWin32)) {
-        throw new Error('Unsupported platform');
-    }
-}
-function getExecutablePath(directory) {
-    const extension = isWin32 ? "exe" : "sh";
-    return path.join(directory, 'steamcmd.' + extension);
-}
-function getDownloadUrl() {
-    let archiveName;
-    if (isLinux) {
-        archiveName = 'steamcmd_linux.tar.gz';
-    }
-    else if (isDarwin) {
-        archiveName = 'steamcmd_osx.tar.gz';
-    }
-    else if (isWin32) {
-        archiveName = 'steamcmd.zip';
-    }
-    return ['https://steamcdn-a.akamaihd.net/client/installer/' + archiveName, archiveName];
-}
-function getInfo(installDir) {
-    return isWin32 ?
-        {
-            directory: installDir.replace(/\\/g, "/"),
-            executable: getExecutablePath(installDir).replace(/\\/g, "/"),
-            binDirectory: installDir.replace(/\\/g, "/"),
-        } :
-        {
-            directory: installDir,
-            executable: getExecutablePath(installDir),
-            binDirectory: path.join(installDir, 'bin'),
-        };
-}
-function installDependencies() {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.info('Installing required dependencies ...');
-        if (isLinux) {
-            yield installLinuxDependencies();
-        }
-    });
-}
-function installLinuxDependencies() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const packagesToInstall = ['lib32gcc-s1'];
-        const aptUpdateStatusCode = yield exec.exec('apt-get', ['--yes', 'update'], { ignoreReturnCode: true });
-        if (aptUpdateStatusCode === 0) {
-            yield exec.exec('apt-get', ['--yes', 'install', ...packagesToInstall]);
-            return;
-        }
-        // if previous command fails, check if the packages are already installed
-        // if not, throw an error
-        for (const packageToInstall of packagesToInstall) {
-            const status = yield exec.exec('/usr/bin/dpkg-query', ['--show', '--showformat=\'${db:Status-Status}\\n\'', packageToInstall], { ignoreReturnCode: true });
-            if (status !== 0) {
-                throw new Error(`Failed to install ${packageToInstall}.`);
-            }
-            core.info(`Failed to update ${packageToInstall}, using installed version. This is the intended behavior for a rootless user.`);
-        }
-    });
-}
-function getTempDirectory() {
-    var _a;
-    return (_a = process.env['RUNNER_TEMP']) !== null && _a !== void 0 ? _a : (() => { throw new Error('Expected RUNNER_TEMP to be defined'); })();
-}
-function install() {
-    return __awaiter(this, void 0, void 0, function* () {
-        //
-        // Download
-        //
-        core.info('Downloading ...');
-        const [downloadUrl, archiveName] = getDownloadUrl();
-        // Why we need to set the destination directory: https://github.com/CyberAndrii/setup-steamcmd/issues/5
-        const archivePath = yield tc.downloadTool(downloadUrl, path.join(getTempDirectory(), archiveName));
-        //
-        // Extract
-        //
-        core.info('Extracting ...');
-        let extractDir;
-        if (isWin32) {
-            extractDir = yield tc.extractZip(archivePath, 'steamcmd');
-        }
-        else {
-            extractDir = yield tc.extractTar(archivePath, 'steamcmd');
-        }
-        //
-        // Cache
-        //
-        core.info('Adding to the cache ...');
-        const installDir = yield tc.cacheDir(extractDir, 'steamcmd', 'latest', 'i386');
-        //
-        // Install dependencies
-        //
-        yield installDependencies();
-        // Creates executable without .sh extension.
-        // So we do not need to write steamcmd.sh anymore.
-        if (isLinux || isDarwin) {
-            const binDir = path.join(installDir, 'bin');
-            const binExe = path.join(binDir, 'steamcmd');
-            yield fs.mkdir(binDir);
-            yield fs.writeFile(binExe, `#!/bin/bash\nexec "${installDir}/steamcmd.sh" "$@"`);
-            yield fs.chmod(binExe, 0o755);
-        }
-        core.info('Updating ...');
-        const executable = getExecutablePath(installDir).replace(/\\/g, "/");
-        const exitCode = yield exec.exec(executable, ['+quit'], { ignoreReturnCode: isWin32 });
-        // SteamCMD exits with code 7 on first run on Windows.
-        if (isWin32 && exitCode === 7) {
-            core.info('Ignoring exit code 7.');
-        }
-        core.info('Done');
-        return getInfo(installDir);
-    });
-}
-function installIfNeed() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const installDir = tc.find('steamcmd', 'latest');
-        if (installDir) {
-            core.info(`Found in cache @ ${installDir}`);
-            return getInfo(installDir);
-        }
-        else {
-            return yield install();
-        }
-    });
-}
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            assertPlatformSupported();
-            const info = yield installIfNeed();
-            core.setOutput('directory', info.directory);
-            core.setOutput('executable', info.executable);
-            core.addPath(info.binDirectory);
-        }
-        catch (error) {
-            core.setFailed(error);
-        }
-    });
-}
-run();
-
-
-/***/ }),
-
 /***/ 9491:
 /***/ ((module) => {
 
@@ -30476,16 +30310,220 @@ module.exports = parseParams
 /******/ }
 /******/ 
 /************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__nccwpck_require__.n = (module) => {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__nccwpck_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter functions for harmony exports
+/******/ 	__nccwpck_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
 /******/ /* webpack/runtime/compat */
 /******/ 
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
 /******/ 
 /************************************************************************/
-/******/ 
-/******/ // startup
-/******/ // Load entry module and return exports
-/******/ // This entry module is referenced by other modules so it can't be inlined
-/******/ var __webpack_exports__ = __nccwpck_require__(6144);
-/******/ 
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2186);
+var core_default = /*#__PURE__*/__nccwpck_require__.n(core);
+// EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
+var tool_cache = __nccwpck_require__(7784);
+var tool_cache_default = /*#__PURE__*/__nccwpck_require__.n(tool_cache);
+// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
+var exec = __nccwpck_require__(1514);
+var exec_default = /*#__PURE__*/__nccwpck_require__.n(exec);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(1017);
+var external_path_default = /*#__PURE__*/__nccwpck_require__.n(external_path_);
+;// CONCATENATED MODULE: external "fs/promises"
+const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs/promises");
+var promises_default = /*#__PURE__*/__nccwpck_require__.n(promises_namespaceObject);
+;// CONCATENATED MODULE: ./src/index.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+const isLinux = process.platform === 'linux';
+const isDarwin = process.platform === 'darwin';
+const isWin32 = process.platform === 'win32';
+function assertPlatformSupported() {
+    if (!(isLinux || isDarwin || isWin32)) {
+        throw new Error('Unsupported platform');
+    }
+}
+function getExecutablePath(directory) {
+    const extension = isWin32 ? "exe" : "sh";
+    return external_path_default().join(directory, `steamcmd.${extension}`);
+}
+function getArchiveName() {
+    if (isLinux)
+        return 'steamcmd_linux.tar.gz';
+    if (isDarwin)
+        return 'steamcmd_osx.tar.gz';
+    if (isWin32)
+        return 'steamcmd.zip';
+    throw new Error('Unsupported platform');
+}
+function getDownloadUrl() {
+    const archiveName = getArchiveName();
+    return [`https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`, archiveName];
+}
+function getInfo(installDir) {
+    return isWin32 ?
+        {
+            directory: installDir.replace(/\\/g, "/"),
+            executable: getExecutablePath(installDir).replace(/\\/g, "/"),
+            binDirectory: installDir.replace(/\\/g, "/"),
+        } :
+        {
+            directory: installDir,
+            executable: getExecutablePath(installDir),
+            binDirectory: external_path_default().join(installDir, "bin"),
+        };
+}
+function installDependencies() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core_default().info('Installing required dependencies ...');
+        if (isLinux) {
+            yield installLinuxDependencies();
+            return;
+        }
+    });
+}
+function installLinuxDependencies() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const packagesToInstall = ['lib32gcc-s1'];
+        const aptUpdateStatusCode = yield exec_default().exec('apt-get', ['--yes', 'update'], { ignoreReturnCode: true });
+        if (aptUpdateStatusCode === 0) {
+            yield exec_default().exec('apt-get', ['--yes', 'install', ...packagesToInstall]);
+            return;
+        }
+        // if previous command fails, check if the packages are already installed
+        // if not, throw an error
+        for (const packageToInstall of packagesToInstall) {
+            const status = yield exec_default().exec('/usr/bin/dpkg-query', ['--show', '--showformat=\'${db:Status-Status}\\n\'', packageToInstall], { ignoreReturnCode: true });
+            if (status === 0) {
+                core_default().info(`${packageToInstall} was already installed!`);
+                continue;
+            }
+            throw new Error(`Failed to install ${packageToInstall}. See apt-get log.`);
+        }
+    });
+}
+function getTempDirectory() {
+    var _a;
+    return (_a = process.env['RUNNER_TEMP']) !== null && _a !== void 0 ? _a : (() => { throw new Error('Expected RUNNER_TEMP to be defined'); })();
+}
+function extractArchive(archivePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core_default().info('Extracting ...');
+        if (isWin32) {
+            return yield tool_cache_default().extractZip(archivePath, 'steamcmd');
+        }
+        return yield tool_cache_default().extractTar(archivePath, 'steamcmd');
+    });
+}
+function install() {
+    return __awaiter(this, void 0, void 0, function* () {
+        //
+        // Download
+        //
+        core_default().info('Downloading ...');
+        const [downloadUrl, archiveName] = getDownloadUrl();
+        // Why we need to set the destination directory: https://github.com/CyberAndrii/setup-steamcmd/issues/5
+        const archivePath = yield tool_cache_default().downloadTool(downloadUrl, external_path_default().join(getTempDirectory(), archiveName));
+        const extractDir = yield extractArchive(archivePath);
+        //
+        // Cache
+        //
+        core_default().info('Adding to the cache ...');
+        const installDir = yield tool_cache_default().cacheDir(extractDir, 'steamcmd', 'latest', 'i386');
+        //
+        // Install dependencies
+        //
+        yield installDependencies();
+        // Creates executable without .sh extension.
+        // So we do not need to write steamcmd.sh anymore.
+        if (isLinux || isDarwin) {
+            const binDir = external_path_default().join(installDir, 'bin');
+            const binExe = external_path_default().join(binDir, 'steamcmd');
+            yield promises_default().mkdir(binDir);
+            yield promises_default().writeFile(binExe, `#!/bin/bash\nexec "${installDir}/steamcmd.sh" "$@"`);
+            yield promises_default().chmod(binExe, 0o755);
+        }
+        core_default().info('Updating ...');
+        const executable = getExecutablePath(installDir).replace(/\\/g, "/");
+        const exitCode = yield exec_default().exec(executable, ['+quit'], { ignoreReturnCode: isWin32 });
+        // SteamCMD exits with code 7 on first run on Windows.
+        if (isWin32 && exitCode === 7) {
+            core_default().info('Ignoring exit code 7.');
+        }
+        core_default().info('Done');
+        return getInfo(installDir);
+    });
+}
+function installIfNeed() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const installDir = tool_cache_default().find('steamcmd', 'latest');
+        if (installDir) {
+            core_default().info(`Found in cache @ ${installDir}`);
+            return getInfo(installDir);
+        }
+        return yield install();
+    });
+}
+function main() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            assertPlatformSupported();
+            const info = yield installIfNeed();
+            core_default().setOutput('directory', info.directory);
+            core_default().setOutput('executable', info.executable);
+            core_default().addPath(info.binDirectory);
+        }
+        catch (error) {
+            core_default().setFailed(error);
+        }
+    });
+}
+void main();
+
+})();
+
 
 //# sourceMappingURL=index.js.map
