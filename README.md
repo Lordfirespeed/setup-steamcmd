@@ -1,9 +1,10 @@
 # setup-steamcmd
 
-[![Integration test status](https://github.com/Lordfirespeed/setup-steamcmd/workflows/Integration%20test/badge.svg)](https://github.com/Lordfirespeed/setup-steamcmd/actions)
 [![License: MIT](https://img.shields.io/github/license/Lordfirespeed/setup-steamcmd?label=License)](LICENSE)
 
 This action sets up the **Steam Console Client** for use in actions.
+
+This project is a fork of [CyberAndrii/setup-steamcmd](https://github.com/CyberAndrii/setup-steamcmd).
 
 # Usage
 
