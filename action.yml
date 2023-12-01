@@ -1,13 +1,21 @@
 name: 'Install SteamCMD'
 description: 'Set up the current release of SteamCMD and add it to the PATH.'
+author: 'Lordfirespeed'
+
+# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
   icon: 'terminal'
   color: 'gray-dark'
+
+# Define your inputs here.
+
+# Define your outputs here.
 outputs:
   directory:
     description: 'SteamCMD installation directory.'
   executable:
     description: 'Path to `steamcmd.sh` or `steamcmd.exe` file, depending on OS.'
+
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: node20
+  main: dist/index.js
