@@ -3,7 +3,7 @@ import * as core from '@actions/core'
 import * as toolCache from '@actions/tool-cache'
 import * as exec from '@actions/exec'
 
-import { InstallSteps } from './AbstractInstallSteps'
+import { InstallSteps } from './abstract.install.steps'
 
 export class WindowsInstallSteps extends InstallSteps {
   static windowsPathToPosixPath(windowsPath: string) {

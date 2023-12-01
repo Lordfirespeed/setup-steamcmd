@@ -4,7 +4,7 @@ import * as core from '@actions/core'
 import * as toolCache from '@actions/tool-cache'
 import fs from 'fs/promises'
 
-import { InstallSteps } from './AbstractInstallSteps'
+import { InstallSteps } from './abstract.install.steps'
 
 export class LinuxInstallSteps extends InstallSteps {
   getExecutablePath(directory: string): string {

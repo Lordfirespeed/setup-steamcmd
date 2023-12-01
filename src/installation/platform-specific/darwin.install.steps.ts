@@ -3,7 +3,7 @@ import * as toolCache from '@actions/tool-cache'
 import * as exec from '@actions/exec'
 import fs from 'fs/promises'
 
-import { InstallSteps } from './AbstractInstallSteps'
+import { InstallSteps } from './abstract.install.steps'
 
 export class DarwinInstallSteps extends InstallSteps {
   getExecutablePath(directory: string): string {

@@ -1,10 +1,10 @@
 import { platform } from 'os'
 import * as core from '@actions/core'
 
-import { InstallSteps } from './platform-specific/AbstractInstallSteps'
-import { DarwinInstallSteps } from './platform-specific/DarwinInstallSteps'
-import { LinuxInstallSteps } from './platform-specific/LinuxInstallSteps'
-import { WindowsInstallSteps } from './platform-specific/WindowsInstallSteps'
+import {
+  InstallSteps, DarwinInstallSteps,
+  LinuxInstallSteps, WindowsInstallSteps
+} from "./platform-specific"
 
 function chooseAppropriateInstallSteps(
   platform: NodeJS.Platform
