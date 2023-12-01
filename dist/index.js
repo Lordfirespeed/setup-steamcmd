@@ -6641,13 +6641,13 @@ const DarwinInstallSteps_1 = __nccwpck_require__(1135);
 const LinuxInstallSteps_1 = __nccwpck_require__(5723);
 const WindowsInstallSteps_1 = __nccwpck_require__(3761);
 function chooseAppropriateInstallSteps(platform) {
-    if (platform === "darwin")
+    if (platform === 'darwin')
         return new DarwinInstallSteps_1.DarwinInstallSteps();
-    if (platform === "linux")
+    if (platform === 'linux')
         return new LinuxInstallSteps_1.LinuxInstallSteps();
-    if (platform === "win32")
+    if (platform === 'win32')
         return new WindowsInstallSteps_1.WindowsInstallSteps();
-    throw new Error("Unsupported platform.");
+    throw new Error('Unsupported platform.');
 }
 async function attemptInstall() {
     const installSteps = chooseAppropriateInstallSteps((0, os_1.platform)());
@@ -6695,8 +6695,12 @@ const path_1 = __importDefault(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
 const toolCache = __importStar(__nccwpck_require__(7784));
 class InstallSteps {
-    async extractArchive(archivePath) { throw new Error("Not implemented."); }
-    async testFirstTimeRun(executable) { throw new Error("Not implemented."); }
+    async extractArchive(archivePath) {
+        throw new Error('Not implemented.');
+    }
+    async testFirstTimeRun(executable) {
+        throw new Error('Not implemented.');
+    }
     async installDependencies() {
         return Promise.resolve();
     }
@@ -6705,10 +6709,13 @@ class InstallSteps {
     }
     getDownloadUrl() {
         const archiveName = this.getArchiveName();
-        return [`https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`, archiveName];
+        return [
+            `https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`,
+            archiveName
+        ];
     }
     getTempDirectory() {
-        if (process.env["RUNNER_TEMP"] === undefined) {
+        if (process.env['RUNNER_TEMP'] === undefined) {
             throw new Error('Expected RUNNER_TEMP to be defined');
         }
         return process.env['RUNNER_TEMP'];
@@ -6794,7 +6801,7 @@ class DarwinInstallSteps extends AbstractInstallSteps_1.InstallSteps {
         return {
             directory: installDir,
             executable: this.getExecutablePath(installDir),
-            binDirectory: path_1.default.join(installDir, "bin"),
+            binDirectory: path_1.default.join(installDir, 'bin')
         };
     }
     async extractArchive(archivePath) {
@@ -6877,14 +6884,14 @@ class LinuxInstallSteps extends AbstractInstallSteps_1.InstallSteps {
             return;
         const install_results = await Promise.allSettled(LinuxInstallSteps.apt_dependencies.map(this.checkDependencyAlreadyInstalled.bind(this)));
         const rejection_reasons = install_results
-            .map(result => result.status == "rejected" && result.reason)
+            .map(result => result.status == 'rejected' && result.reason)
             .filter(result => result);
         if (rejection_reasons.length === 0)
             return;
         throw rejection_reasons.pop();
     }
     async checkDependencyAlreadyInstalled(packageSpecifier) {
-        const status = await exec.exec('/usr/bin/dpkg-query', ['--show', '--showformat=\'${db:Status-Status}\\n\'', packageSpecifier], { ignoreReturnCode: true });
+        const status = await exec.exec('/usr/bin/dpkg-query', ['--show', "--showformat='${db:Status-Status}\\n'", packageSpecifier], { ignoreReturnCode: true });
         if (status === 0) {
             core.info(`${packageSpecifier} was already installed!`);
             return;
@@ -6895,7 +6902,7 @@ class LinuxInstallSteps extends AbstractInstallSteps_1.InstallSteps {
         return {
             directory: installDir,
             executable: this.getExecutablePath(installDir),
-            binDirectory: path_1.default.join(installDir, "bin"),
+            binDirectory: path_1.default.join(installDir, 'bin')
         };
     }
     async extractArchive(archivePath) {
@@ -6961,23 +6968,25 @@ const exec = __importStar(__nccwpck_require__(1514));
 const AbstractInstallSteps_1 = __nccwpck_require__(8721);
 class WindowsInstallSteps extends AbstractInstallSteps_1.InstallSteps {
     getExecutablePath(directory) {
-        return path_1.default.join(directory, `steamcmd.exe`).replace(/\\/g, "/");
+        return path_1.default.join(directory, `steamcmd.exe`).replace(/\\/g, '/');
     }
     getArchiveName() {
         return 'steamcmd.zip';
     }
     getInfo(installDir) {
         return {
-            directory: installDir.replace(/\\/g, "/"),
-            executable: this.getExecutablePath(installDir).replace(/\\/g, "/"),
-            binDirectory: installDir.replace(/\\/g, "/"),
+            directory: installDir.replace(/\\/g, '/'),
+            executable: this.getExecutablePath(installDir).replace(/\\/g, '/'),
+            binDirectory: installDir.replace(/\\/g, '/')
         };
     }
     async extractArchive(archivePath) {
         return await toolCache.extractZip(archivePath, 'steamcmd');
     }
     async testFirstTimeRun(executable) {
-        const firstRunExitCode = await exec.exec(executable, ['+quit'], { ignoreReturnCode: true });
+        const firstRunExitCode = await exec.exec(executable, ['+quit'], {
+            ignoreReturnCode: true
+        });
         // SteamCMD exits with code 7 on first run on Windows.
         if (firstRunExitCode === 7) {
             core.info('Ignoring exit code 7.');
@@ -6986,7 +6995,7 @@ class WindowsInstallSteps extends AbstractInstallSteps_1.InstallSteps {
         if (firstRunExitCode === 0) {
             return;
         }
-        throw Error("SteamCMD first-run test yielded an unexpected exit code. Aborting.");
+        throw Error('SteamCMD first-run test yielded an unexpected exit code. Aborting.');
     }
 }
 exports.WindowsInstallSteps = WindowsInstallSteps;
