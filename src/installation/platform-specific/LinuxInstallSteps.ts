@@ -18,12 +18,12 @@ export class LinuxInstallSteps extends InstallSteps {
 
     static apt_dependencies = ['lib32gcc-s1'];
     async installDependencies() {
-        const aptUpdateStatusCode = await exec.exec('apt-get', ['--yes', 'update'], {ignoreReturnCode: true});
+        const aptUpdateStatusCode = await exec.exec('sudo apt-get', ['--yes', 'update'], {ignoreReturnCode: true});
         if (aptUpdateStatusCode !== 0) {
             throw new Error("Couldn't update apt package index. Aborting.");
         }
 
-        const aptInstallStatusCode = await exec.exec('apt-get', ['--yes', 'install', ...LinuxInstallSteps.apt_dependencies], {ignoreReturnCode: true});
+        const aptInstallStatusCode = await exec.exec('sudo apt-get', ['--yes', 'install', ...LinuxInstallSteps.apt_dependencies], {ignoreReturnCode: true});
         if (aptInstallStatusCode === 0) return;
 
         const install_results = await Promise.allSettled(
