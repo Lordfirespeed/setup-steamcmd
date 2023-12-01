@@ -2,7 +2,7 @@
  * Unit tests for the action's entrypoint, src/index.ts
  */
 
-import * as installation from '../src/installation/main'
+import * as installation from '../src/main'
 
 // Mock the action's entrypoint
 const runMock = jest

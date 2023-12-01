@@ -14,7 +14,7 @@ import path from 'path'
 import fs from 'fs/promises'
 import os from 'os'
 
-import * as main from '../src/installation/main'
+import * as main from '../src/main'
 
 // Mock the action's main function
 const runMock = jest.spyOn(main, 'attemptInstall')
