@@ -21,11 +21,11 @@ export abstract class InstallSteps {
   }
 
   async installDependencies(): Promise<void> {
-    return Promise.resolve()
+    return;
   }
 
   async postInstall(cachedDir: string): Promise<void> {
-    return Promise.resolve()
+    return;
   }
 
   getDownloadUrl(): string[] {
