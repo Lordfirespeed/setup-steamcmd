@@ -64,8 +64,8 @@ export abstract class InstallSteps {
     binDirectory: string
   }> {
     const cachedDir = await this.downloadArchive()
-      .then(this.extractArchive)
-      .then(this.cacheInstalledTool)
+      .then(archiveFile => this.extractArchive(archiveFile))
+      .then(unpackedDir => this.cacheInstalledTool(unpackedDir))
 
     await this.installDependencies()
     await this.postInstall(cachedDir)
