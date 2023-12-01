@@ -1,4 +1,5 @@
 import { platform } from 'os'
+import * as core from '@actions/core'
 
 import { InstallSteps } from './platform-specific/AbstractInstallSteps'
 import { DarwinInstallSteps } from './platform-specific/DarwinInstallSteps'
@@ -19,5 +20,8 @@ function chooseAppropriateInstallSteps(
 
 export async function attemptInstall() {
   const installSteps = chooseAppropriateInstallSteps(platform())
-  return await installSteps.installIfNecessary()
+  const info = await installSteps.installIfNecessary()
+  core.setOutput('directory', info.directory)
+  core.setOutput('executable', info.executable)
+  core.addPath(info.binDirectory)
 }
