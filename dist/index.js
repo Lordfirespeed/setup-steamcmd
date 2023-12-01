@@ -30350,7 +30350,6 @@ var __webpack_exports__ = {};
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
-var core_default = /*#__PURE__*/__nccwpck_require__.n(core);
 // EXTERNAL MODULE: external "os"
 var external_os_ = __nccwpck_require__(2037);
 // EXTERNAL MODULE: external "path"
@@ -30358,13 +30357,11 @@ var external_path_ = __nccwpck_require__(1017);
 var external_path_default = /*#__PURE__*/__nccwpck_require__.n(external_path_);
 // EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
 var tool_cache = __nccwpck_require__(7784);
-var tool_cache_default = /*#__PURE__*/__nccwpck_require__.n(tool_cache);
+// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
+var exec = __nccwpck_require__(1514);
 ;// CONCATENATED MODULE: external "fs/promises"
 const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs/promises");
 var promises_default = /*#__PURE__*/__nccwpck_require__.n(promises_namespaceObject);
-// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
-var exec = __nccwpck_require__(1514);
-var exec_default = /*#__PURE__*/__nccwpck_require__.n(exec);
 ;// CONCATENATED MODULE: ./src/installation/platform-specific/AbstractInstallSteps.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -30409,12 +30406,12 @@ class InstallSteps {
         return __awaiter(this, void 0, void 0, function* () {
             const [downloadUrl, archiveName] = this.getDownloadUrl();
             // Why we need to set the destination directory: https://github.com/CyberAndrii/setup-steamcmd/issues/5
-            return yield tool_cache_default().downloadTool(downloadUrl, external_path_default().join(this.getTempDirectory(), archiveName));
+            return yield tool_cache.downloadTool(downloadUrl, external_path_default().join(this.getTempDirectory(), archiveName));
         });
     }
     cacheInstalledTool(extractDir) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield tool_cache_default().cacheDir(extractDir, 'steamcmd', 'latest', 'i386');
+            return yield tool_cache.cacheDir(extractDir, 'steamcmd', 'latest', 'i386');
         });
     }
     install() {
@@ -30431,9 +30428,9 @@ class InstallSteps {
     }
     installIfNecessary() {
         return __awaiter(this, void 0, void 0, function* () {
-            const installDir = tool_cache_default().find('steamcmd', 'latest');
+            const installDir = tool_cache.find('steamcmd', 'latest');
             if (installDir) {
-                core_default().info(`Found in cache @ ${installDir}`);
+                core.info(`Found in cache @ ${installDir}`);
                 return this.getInfo(installDir);
             }
             return yield this.install();
@@ -30472,7 +30469,7 @@ class DarwinInstallSteps extends InstallSteps {
     }
     extractArchive(archivePath) {
         return DarwinInstallSteps_awaiter(this, void 0, void 0, function* () {
-            return yield tool_cache_default().extractTar(archivePath, 'steamcmd');
+            return yield tool_cache.extractTar(archivePath, 'steamcmd');
         });
     }
     /**
@@ -30490,7 +30487,7 @@ class DarwinInstallSteps extends InstallSteps {
     }
     testFirstTimeRun(executable) {
         return DarwinInstallSteps_awaiter(this, void 0, void 0, function* () {
-            yield exec_default().exec(executable, ['+quit'], { ignoreReturnCode: false });
+            yield exec.exec(executable, ['+quit'], { ignoreReturnCode: false });
         });
     }
 }
@@ -30520,11 +30517,11 @@ class LinuxInstallSteps extends InstallSteps {
     }
     installDependencies() {
         return LinuxInstallSteps_awaiter(this, void 0, void 0, function* () {
-            const aptUpdateStatusCode = yield exec_default().exec('apt-get', ['--yes', 'update'], { ignoreReturnCode: true });
+            const aptUpdateStatusCode = yield exec.exec('apt-get', ['--yes', 'update'], { ignoreReturnCode: true });
             if (aptUpdateStatusCode !== 0) {
                 throw new Error("Couldn't update apt package index. Aborting.");
             }
-            const aptInstallStatusCode = yield exec_default().exec('apt-get', ['--yes', 'install', ...LinuxInstallSteps.apt_dependencies], { ignoreReturnCode: true });
+            const aptInstallStatusCode = yield exec.exec('apt-get', ['--yes', 'install', ...LinuxInstallSteps.apt_dependencies], { ignoreReturnCode: true });
             if (aptInstallStatusCode === 0)
                 return;
             const install_results = yield Promise.allSettled(LinuxInstallSteps.apt_dependencies.map(this.checkDependencyAlreadyInstalled.bind(this)));
@@ -30538,9 +30535,9 @@ class LinuxInstallSteps extends InstallSteps {
     }
     checkDependencyAlreadyInstalled(packageSpecifier) {
         return LinuxInstallSteps_awaiter(this, void 0, void 0, function* () {
-            const status = yield exec_default().exec('/usr/bin/dpkg-query', ['--show', '--showformat=\'${db:Status-Status}\\n\'', packageSpecifier], { ignoreReturnCode: true });
+            const status = yield exec.exec('/usr/bin/dpkg-query', ['--show', '--showformat=\'${db:Status-Status}\\n\'', packageSpecifier], { ignoreReturnCode: true });
             if (status === 0) {
-                core_default().info(`${packageSpecifier} was already installed!`);
+                core.info(`${packageSpecifier} was already installed!`);
                 return;
             }
             throw new Error(`Failed to install ${packageSpecifier}. See apt-get log.`);
@@ -30555,7 +30552,7 @@ class LinuxInstallSteps extends InstallSteps {
     }
     extractArchive(archivePath) {
         return LinuxInstallSteps_awaiter(this, void 0, void 0, function* () {
-            return yield tool_cache_default().extractTar(archivePath, 'steamcmd');
+            return yield tool_cache.extractTar(archivePath, 'steamcmd');
         });
     }
     /**
@@ -30573,7 +30570,7 @@ class LinuxInstallSteps extends InstallSteps {
     }
     testFirstTimeRun(executable) {
         return LinuxInstallSteps_awaiter(this, void 0, void 0, function* () {
-            yield exec_default().exec(executable, ['+quit'], { ignoreReturnCode: false });
+            yield exec.exec(executable, ['+quit'], { ignoreReturnCode: false });
         });
     }
 }
@@ -30610,15 +30607,15 @@ class WindowsInstallSteps extends InstallSteps {
     }
     extractArchive(archivePath) {
         return WindowsInstallSteps_awaiter(this, void 0, void 0, function* () {
-            return yield tool_cache_default().extractZip(archivePath, 'steamcmd');
+            return yield tool_cache.extractZip(archivePath, 'steamcmd');
         });
     }
     testFirstTimeRun(executable) {
         return WindowsInstallSteps_awaiter(this, void 0, void 0, function* () {
-            const firstRunExitCode = yield exec_default().exec(executable, ['+quit'], { ignoreReturnCode: true });
+            const firstRunExitCode = yield exec.exec(executable, ['+quit'], { ignoreReturnCode: true });
             // SteamCMD exits with code 7 on first run on Windows.
             if (firstRunExitCode === 7) {
-                core_default().info('Ignoring exit code 7.');
+                core.info('Ignoring exit code 7.');
                 return;
             }
             if (firstRunExitCode === 0) {
@@ -30674,15 +30671,15 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 function main() {
     return src_awaiter(this, void 0, void 0, function* () {
         const info = yield attemptInstall();
-        core_default().setOutput('directory', info.directory);
-        core_default().setOutput('executable', info.executable);
-        core_default().addPath(info.binDirectory);
+        core.setOutput('directory', info.directory);
+        core.setOutput('executable', info.executable);
+        core.addPath(info.binDirectory);
     });
 }
 function wrap_main() {
     return src_awaiter(this, void 0, void 0, function* () {
         yield main()
-            .catch(error => core_default().setFailed(error));
+            .catch(error => core.setFailed(error));
     });
 }
 void wrap_main();
