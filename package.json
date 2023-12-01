@@ -3,6 +3,9 @@
   "description": "GitHub Action that sets up SteamCMD.",
   "version": "2.0.0",
   "author": "Lordfirespeed",
+  "contributors": [
+    "Andrii Vitiv <cyberandrii@gmail.com>"
+  ],
   "private": false,
   "homepage": "https://github.com/Lordfirespeed/setup-steamcmd",
   "repository": {
