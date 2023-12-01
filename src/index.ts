@@ -5,17 +5,15 @@ import { attemptInstall } from "./installation/installation";
 
 async function main()
 {
-    try
-    {
-        const info = await attemptInstall();
-        core.setOutput('directory', info.directory);
-        core.setOutput('executable', info.executable);
-        core.addPath(info.binDirectory);
-    }
-    catch (error)
-    {
-        core.setFailed(error);
-    }
+    const info = await attemptInstall();
+    core.setOutput('directory', info.directory);
+    core.setOutput('executable', info.executable);
+    core.addPath(info.binDirectory);
 }
 
-void main();
+async function wrap_main() {
+    await main()
+        .catch(error => core.setFailed(error));
+}
+
+void wrap_main()
