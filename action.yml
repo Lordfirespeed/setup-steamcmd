@@ -1,5 +1,5 @@
-name: 'Setup SteamCMD'
-description: 'This action sets up SteamCMD for use in actions.'
+name: 'Install SteamCMD'
+description: 'Set up the current release of SteamCMD and add it to the PATH.'
 branding:
   icon: 'terminal'
   color: 'gray-dark'

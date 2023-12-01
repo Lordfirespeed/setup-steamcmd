@@ -1,5 +1,9 @@
 # setup-steamcmd
 
+[![GitHub Super-Linter](https://github.com/actions/typescript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+![CI](https://github.com/actions/typescript-action/actions/workflows/ci.yml/badge.svg)
+[![Check dist/](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml)
+[![CodeQL](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml)
 [![License: MIT](https://img.shields.io/github/license/Lordfirespeed/setup-steamcmd?label=License)](LICENSE)
 
 This action sets up the **Steam Console Client** for use in actions.
