@@ -1,7 +1,7 @@
 import path from "path";
-import core from "@actions/core";
-import toolCache from "@actions/tool-cache";
-import exec from "@actions/exec";
+import * as core from "@actions/core";
+import * as toolCache from "@actions/tool-cache";
+import * as exec from "@actions/exec";
 
 import { InstallSteps } from "./AbstractInstallSteps";
 

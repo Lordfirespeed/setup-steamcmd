@@ -1,7 +1,7 @@
 import path from "path";
-import exec from "@actions/exec";
-import core from "@actions/core";
-import toolCache from "@actions/tool-cache";
+import * as exec from "@actions/exec";
+import * as core from "@actions/core";
+import * as toolCache from "@actions/tool-cache";
 import fs from "fs/promises"
 
 import { InstallSteps } from "./AbstractInstallSteps";

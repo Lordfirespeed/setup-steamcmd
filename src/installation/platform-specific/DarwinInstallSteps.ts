@@ -1,7 +1,7 @@
 import path from "path";
-import tc from "@actions/tool-cache";
+import * as toolCache from "@actions/tool-cache";
+import * as exec from "@actions/exec";
 import fs from "fs/promises"
-import exec from "@actions/exec";
 
 import { InstallSteps } from "./AbstractInstallSteps";
 
@@ -24,7 +24,7 @@ export class DarwinInstallSteps extends InstallSteps {
     }
 
     async extractArchive(archivePath: string) {
-        return await tc.extractTar(archivePath, 'steamcmd');
+        return await toolCache.extractTar(archivePath, 'steamcmd');
     }
 
     /**

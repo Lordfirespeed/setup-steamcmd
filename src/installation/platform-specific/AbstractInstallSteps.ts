@@ -1,6 +1,6 @@
 import path from "path";
-import core from "@actions/core";
-import toolCache from "@actions/tool-cache";
+import * as core from "@actions/core";
+import * as toolCache from "@actions/tool-cache";
 
 
 export abstract class InstallSteps {
