@@ -6,8 +6,12 @@ import * as exec from '@actions/exec'
 import { InstallSteps } from './AbstractInstallSteps'
 
 export class WindowsInstallSteps extends InstallSteps {
+  static windowsPathToPosixPath(windowsPath: string) {
+    return path.posix.format(path.win32.parse(windowsPath));
+  }
+
   getExecutablePath(directory: string): string {
-    return path.join(directory, `steamcmd.exe`).replace(/\\/g, '/')
+    return path.win32.join(directory, `steamcmd.exe`)
   }
 
   getArchiveName(): string {
@@ -20,9 +24,9 @@ export class WindowsInstallSteps extends InstallSteps {
     binDirectory: string
   } {
     return {
-      directory: installDir.replace(/\\/g, '/'),
-      executable: this.getExecutablePath(installDir).replace(/\\/g, '/'),
-      binDirectory: installDir.replace(/\\/g, '/')
+      directory: WindowsInstallSteps.windowsPathToPosixPath(installDir),
+      executable: WindowsInstallSteps.windowsPathToPosixPath(this.getExecutablePath(installDir)),
+      binDirectory: WindowsInstallSteps.windowsPathToPosixPath(installDir)
     }
   }
 
