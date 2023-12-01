@@ -5,7 +5,6 @@
 npm install
 npm run build
 
-act \
---platform ubuntu-latest=ubuntu-latest \
---platform ubuntu-20.04=node:16-buster-slim
+act -P ubuntu-latest=catthehacker/ubuntu:act-latest
+
 "$@"
