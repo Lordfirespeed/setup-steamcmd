@@ -10,7 +10,7 @@ This action sets up the **Steam Console Client** for use in actions.
 
 This project is a fork of [CyberAndrii/setup-steamcmd](https://github.com/CyberAndrii/setup-steamcmd).
 
-# Usage
+## Usage
 
 The following example will install and validate the app with id 1337.
 
@@ -25,7 +25,7 @@ steps:
 
 More information about SteamCMD can be found in the [official wiki](https://developer.valvesoftware.com/wiki/SteamCMD).
 
-# Outputs
+## Outputs
 
 | name       | description                                                  |
 |------------|--------------------------------------------------------------|
