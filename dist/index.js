@@ -6614,51 +6614,70 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const installation_1 = __nccwpck_require__(1117);
-async function main() {
-    const info = await (0, installation_1.attemptInstall)();
-    core.setOutput('directory', info.directory);
-    core.setOutput('executable', info.executable);
-    core.addPath(info.binDirectory);
+const main_1 = __nccwpck_require__(2895);
+async function wrap_install() {
+    await (0, main_1.attemptInstall)().catch(error => core.setFailed(error));
 }
-async function wrap_main() {
-    await main().catch(error => core.setFailed(error));
-}
-void wrap_main();
+void wrap_install();
 
 
 /***/ }),
 
-/***/ 1117:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ 2895:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.attemptInstall = void 0;
 const os_1 = __nccwpck_require__(2037);
-const DarwinInstallSteps_1 = __nccwpck_require__(1135);
-const LinuxInstallSteps_1 = __nccwpck_require__(5723);
-const WindowsInstallSteps_1 = __nccwpck_require__(3761);
+const core = __importStar(__nccwpck_require__(2186));
+const platform_specific_1 = __nccwpck_require__(8880);
 function chooseAppropriateInstallSteps(platform) {
     if (platform === 'darwin')
-        return new DarwinInstallSteps_1.DarwinInstallSteps();
+        return new platform_specific_1.DarwinInstallSteps();
     if (platform === 'linux')
-        return new LinuxInstallSteps_1.LinuxInstallSteps();
+        return new platform_specific_1.LinuxInstallSteps();
     if (platform === 'win32')
-        return new WindowsInstallSteps_1.WindowsInstallSteps();
+        return new platform_specific_1.WindowsInstallSteps();
     throw new Error('Unsupported platform.');
 }
 async function attemptInstall() {
     const installSteps = chooseAppropriateInstallSteps((0, os_1.platform)());
-    return await installSteps.installIfNecessary();
+    const info = await installSteps.installIfNecessary();
+    core.setOutput('directory', info.directory);
+    core.setOutput('executable', info.executable);
+    core.addPath(info.binDirectory);
 }
 exports.attemptInstall = attemptInstall;
 
 
 /***/ }),
 
-/***/ 8721:
+/***/ 3244:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6702,10 +6721,10 @@ class InstallSteps {
         throw new Error('Not implemented.');
     }
     async installDependencies() {
-        return Promise.resolve();
+        return;
     }
     async postInstall(cachedDir) {
-        return Promise.resolve();
+        return;
     }
     getDownloadUrl() {
         const archiveName = this.getArchiveName();
@@ -6730,8 +6749,8 @@ class InstallSteps {
     }
     async install() {
         const cachedDir = await this.downloadArchive()
-            .then(this.extractArchive)
-            .then(this.cacheInstalledTool);
+            .then(archiveFile => this.extractArchive(archiveFile))
+            .then(unpackedDir => this.cacheInstalledTool(unpackedDir));
         await this.installDependencies();
         await this.postInstall(cachedDir);
         const executable = this.getExecutablePath(cachedDir);
@@ -6752,7 +6771,7 @@ exports.InstallSteps = InstallSteps;
 
 /***/ }),
 
-/***/ 1135:
+/***/ 3521:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6789,8 +6808,8 @@ const path_1 = __importDefault(__nccwpck_require__(1017));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const exec = __importStar(__nccwpck_require__(1514));
 const promises_1 = __importDefault(__nccwpck_require__(3292));
-const AbstractInstallSteps_1 = __nccwpck_require__(8721);
-class DarwinInstallSteps extends AbstractInstallSteps_1.InstallSteps {
+const abstract_install_steps_1 = __nccwpck_require__(3244);
+class DarwinInstallSteps extends abstract_install_steps_1.InstallSteps {
     getExecutablePath(directory) {
         return path_1.default.join(directory, `steamcmd.sh`);
     }
@@ -6827,7 +6846,26 @@ exports.DarwinInstallSteps = DarwinInstallSteps;
 
 /***/ }),
 
-/***/ 5723:
+/***/ 8880:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WindowsInstallSteps = exports.LinuxInstallSteps = exports.DarwinInstallSteps = exports.InstallSteps = void 0;
+var abstract_install_steps_1 = __nccwpck_require__(3244);
+Object.defineProperty(exports, "InstallSteps", ({ enumerable: true, get: function () { return abstract_install_steps_1.InstallSteps; } }));
+var darwin_install_steps_1 = __nccwpck_require__(3521);
+Object.defineProperty(exports, "DarwinInstallSteps", ({ enumerable: true, get: function () { return darwin_install_steps_1.DarwinInstallSteps; } }));
+var linux_install_steps_1 = __nccwpck_require__(6287);
+Object.defineProperty(exports, "LinuxInstallSteps", ({ enumerable: true, get: function () { return linux_install_steps_1.LinuxInstallSteps; } }));
+var windows_install_steps_1 = __nccwpck_require__(888);
+Object.defineProperty(exports, "WindowsInstallSteps", ({ enumerable: true, get: function () { return windows_install_steps_1.WindowsInstallSteps; } }));
+
+
+/***/ }),
+
+/***/ 6287:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6865,8 +6903,8 @@ const exec = __importStar(__nccwpck_require__(1514));
 const core = __importStar(__nccwpck_require__(2186));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const promises_1 = __importDefault(__nccwpck_require__(3292));
-const AbstractInstallSteps_1 = __nccwpck_require__(8721);
-class LinuxInstallSteps extends AbstractInstallSteps_1.InstallSteps {
+const abstract_install_steps_1 = __nccwpck_require__(3244);
+class LinuxInstallSteps extends abstract_install_steps_1.InstallSteps {
     getExecutablePath(directory) {
         return path_1.default.join(directory, `steamcmd.sh`);
     }
@@ -6884,7 +6922,7 @@ class LinuxInstallSteps extends AbstractInstallSteps_1.InstallSteps {
             return;
         const install_results = await Promise.allSettled(LinuxInstallSteps.apt_dependencies.map(this.checkDependencyAlreadyInstalled.bind(this)));
         const rejection_reasons = install_results
-            .map(result => result.status == 'rejected' && result.reason)
+            .map(result => result.status === 'rejected' && result.reason)
             .filter(result => result);
         if (rejection_reasons.length === 0)
             return;
@@ -6928,7 +6966,7 @@ exports.LinuxInstallSteps = LinuxInstallSteps;
 
 /***/ }),
 
-/***/ 3761:
+/***/ 888:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6965,19 +7003,22 @@ const path_1 = __importDefault(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const exec = __importStar(__nccwpck_require__(1514));
-const AbstractInstallSteps_1 = __nccwpck_require__(8721);
-class WindowsInstallSteps extends AbstractInstallSteps_1.InstallSteps {
+const abstract_install_steps_1 = __nccwpck_require__(3244);
+class WindowsInstallSteps extends abstract_install_steps_1.InstallSteps {
+    static windowsPathToPosixPath(windowsPath) {
+        return path_1.default.posix.format(path_1.default.win32.parse(windowsPath));
+    }
     getExecutablePath(directory) {
-        return path_1.default.join(directory, `steamcmd.exe`).replace(/\\/g, '/');
+        return path_1.default.win32.join(directory, `steamcmd.exe`);
     }
     getArchiveName() {
         return 'steamcmd.zip';
     }
     getInfo(installDir) {
         return {
-            directory: installDir.replace(/\\/g, '/'),
-            executable: this.getExecutablePath(installDir).replace(/\\/g, '/'),
-            binDirectory: installDir.replace(/\\/g, '/')
+            directory: WindowsInstallSteps.windowsPathToPosixPath(installDir),
+            executable: WindowsInstallSteps.windowsPathToPosixPath(this.getExecutablePath(installDir)),
+            binDirectory: WindowsInstallSteps.windowsPathToPosixPath(installDir)
         };
     }
     async extractArchive(archivePath) {
