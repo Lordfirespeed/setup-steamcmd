@@ -7,7 +7,7 @@ import { InstallSteps } from './AbstractInstallSteps'
 
 export class WindowsInstallSteps extends InstallSteps {
   static windowsPathToPosixPath(windowsPath: string) {
-    return path.posix.format(path.win32.parse(windowsPath));
+    return path.posix.format(path.win32.parse(windowsPath))
   }
 
   getExecutablePath(directory: string): string {
@@ -25,7 +25,9 @@ export class WindowsInstallSteps extends InstallSteps {
   } {
     return {
       directory: WindowsInstallSteps.windowsPathToPosixPath(installDir),
-      executable: WindowsInstallSteps.windowsPathToPosixPath(this.getExecutablePath(installDir)),
+      executable: WindowsInstallSteps.windowsPathToPosixPath(
+        this.getExecutablePath(installDir)
+      ),
       binDirectory: WindowsInstallSteps.windowsPathToPosixPath(installDir)
     }
   }

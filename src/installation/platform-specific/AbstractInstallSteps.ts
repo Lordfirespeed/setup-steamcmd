@@ -16,16 +16,17 @@ export abstract class InstallSteps {
   async extractArchive(archivePath: string): Promise<string> {
     throw new Error('Not implemented.')
   }
+
   async testFirstTimeRun(executable: string): Promise<void> {
     throw new Error('Not implemented.')
   }
 
   async installDependencies(): Promise<void> {
-    return;
+    return
   }
 
   async postInstall(cachedDir: string): Promise<void> {
-    return;
+    return
   }
 
   getDownloadUrl(): string[] {
