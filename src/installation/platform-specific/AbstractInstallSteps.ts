@@ -28,7 +28,7 @@ export abstract class InstallSteps {
     return Promise.resolve()
   }
 
-  getDownloadUrl() {
+  getDownloadUrl(): string[] {
     const archiveName = this.getArchiveName()
     return [
       `https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`,
@@ -57,7 +57,11 @@ export abstract class InstallSteps {
     return await toolCache.cacheDir(extractDir, 'steamcmd', 'latest', 'i386')
   }
 
-  async install() {
+  async install(): Promise<{
+    directory: string
+    executable: string
+    binDirectory: string
+  }> {
     const cachedDir = await this.downloadArchive()
       .then(this.extractArchive)
       .then(this.cacheInstalledTool)
@@ -71,7 +75,11 @@ export abstract class InstallSteps {
     return this.getInfo(cachedDir)
   }
 
-  async installIfNecessary() {
+  async installIfNecessary(): Promise<{
+    directory: string
+    executable: string
+    binDirectory: string
+  }> {
     const installDir = toolCache.find('steamcmd', 'latest')
 
     if (installDir) {

@@ -6,15 +6,19 @@ import * as exec from '@actions/exec'
 import { InstallSteps } from './AbstractInstallSteps'
 
 export class WindowsInstallSteps extends InstallSteps {
-  getExecutablePath(directory: string) {
+  getExecutablePath(directory: string): string {
     return path.join(directory, `steamcmd.exe`).replace(/\\/g, '/')
   }
 
-  getArchiveName() {
+  getArchiveName(): string {
     return 'steamcmd.zip'
   }
 
-  getInfo(installDir: string) {
+  getInfo(installDir: string): {
+    directory: string
+    executable: string
+    binDirectory: string
+  } {
     return {
       directory: installDir.replace(/\\/g, '/'),
       executable: this.getExecutablePath(installDir).replace(/\\/g, '/'),
@@ -22,7 +26,7 @@ export class WindowsInstallSteps extends InstallSteps {
     }
   }
 
-  async extractArchive(archivePath: string) {
+  async extractArchive(archivePath: string): Promise<string> {
     return await toolCache.extractZip(archivePath, 'steamcmd')
   }
 

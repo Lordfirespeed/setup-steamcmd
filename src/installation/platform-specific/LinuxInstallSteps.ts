@@ -7,16 +7,16 @@ import fs from 'fs/promises'
 import { InstallSteps } from './AbstractInstallSteps'
 
 export class LinuxInstallSteps extends InstallSteps {
-  getExecutablePath(directory: string) {
+  getExecutablePath(directory: string): string {
     return path.join(directory, `steamcmd.sh`)
   }
 
-  getArchiveName() {
+  getArchiveName(): string {
     return 'steamcmd_linux.tar.gz'
   }
 
-  static apt_dependencies = ['lib32gcc-s1']
-  async installDependencies() {
+  static apt_dependencies: string[] = ['lib32gcc-s1']
+  async installDependencies(): Promise<void> {
     const aptUpdateStatusCode = await exec.exec(
       'sudo apt-get',
       ['--yes', 'update'],
@@ -26,7 +26,7 @@ export class LinuxInstallSteps extends InstallSteps {
       throw new Error("Couldn't update apt package index. Aborting.")
     }
 
-    const aptInstallStatusCode = await exec.exec(
+    const aptInstallStatusCode: number = await exec.exec(
       'sudo apt-get',
       ['--yes', 'install', ...LinuxInstallSteps.apt_dependencies],
       { ignoreReturnCode: true }
@@ -40,7 +40,7 @@ export class LinuxInstallSteps extends InstallSteps {
     )
 
     const rejection_reasons = install_results
-      .map(result => result.status == 'rejected' && result.reason)
+      .map(result => result.status === 'rejected' && result.reason)
       .filter(result => result)
 
     if (rejection_reasons.length === 0) return
@@ -64,7 +64,11 @@ export class LinuxInstallSteps extends InstallSteps {
     throw new Error(`Failed to install ${packageSpecifier}. See apt-get log.`)
   }
 
-  getInfo(installDir: string) {
+  getInfo(installDir: string): {
+    directory: string
+    executable: string
+    binDirectory: string
+  } {
     return {
       directory: installDir,
       executable: this.getExecutablePath(installDir),
@@ -72,7 +76,7 @@ export class LinuxInstallSteps extends InstallSteps {
     }
   }
 
-  async extractArchive(archivePath: string) {
+  async extractArchive(archivePath: string): Promise<string> {
     return await toolCache.extractTar(archivePath, 'steamcmd')
   }
 
@@ -80,7 +84,7 @@ export class LinuxInstallSteps extends InstallSteps {
    *  Creates executable without .sh extension.
    *  So we do not need to write steamcmd.sh anymore.
    */
-  async postInstall(installDir: string) {
+  async postInstall(installDir: string): Promise<void> {
     const binDir = path.join(installDir, 'bin')
     const binExe = path.join(binDir, 'steamcmd')
 

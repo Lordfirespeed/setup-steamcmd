@@ -6,15 +6,19 @@ import fs from 'fs/promises'
 import { InstallSteps } from './AbstractInstallSteps'
 
 export class DarwinInstallSteps extends InstallSteps {
-  getExecutablePath(directory: string) {
+  getExecutablePath(directory: string): string {
     return path.join(directory, `steamcmd.sh`)
   }
 
-  getArchiveName() {
+  getArchiveName(): string {
     return 'steamcmd_osx.tar.gz'
   }
 
-  getInfo(installDir: string) {
+  getInfo(installDir: string): {
+    directory: string
+    executable: string
+    binDirectory: string
+  } {
     return {
       directory: installDir,
       executable: this.getExecutablePath(installDir),
@@ -22,7 +26,7 @@ export class DarwinInstallSteps extends InstallSteps {
     }
   }
 
-  async extractArchive(archivePath: string) {
+  async extractArchive(archivePath: string): Promise<string> {
     return await toolCache.extractTar(archivePath, 'steamcmd')
   }
 
@@ -30,7 +34,7 @@ export class DarwinInstallSteps extends InstallSteps {
    *  Creates executable without .sh extension.
    *  So we do not need to write steamcmd.sh anymore.
    */
-  async postInstall(installDir: string) {
+  async postInstall(installDir: string): Promise<void> {
     const binDir = path.join(installDir, 'bin')
     const binExe = path.join(binDir, 'steamcmd')
 
