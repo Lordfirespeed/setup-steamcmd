@@ -1,0 +1,39 @@
+name: Integration Test
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  
+  login:
+    runs-on: ${{ matrix.os }}
+    outputs:
+      directory: ${{ steps.setup-steamcmd.outputs.directory }}
+      executable: ${{ steps.setup-steamcmd.outputs.executable }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macOS-latest ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up SteamCMD
+        id: setup-steamcmd
+        uses: ./
+
+      - name: Login anonymously
+        run: steamcmd +login anonymous +quit
+        # PowerShell (default on Windows) hides some error messages
+        shell: bash
+
+      - name: Verify outputs
+        run: |
+          echo ${{ steps.setup-steamcmd.outputs.directory }}
+          echo ${{ steps.setup-steamcmd.outputs.executable }}
