@@ -6614,7 +6614,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const main_1 = __nccwpck_require__(2895);
+const main_1 = __nccwpck_require__(399);
 async function wrap_install() {
     await (0, main_1.attemptInstall)().catch(error => core.setFailed(error));
 }
@@ -6623,7 +6623,7 @@ void wrap_install();
 
 /***/ }),
 
-/***/ 2895:
+/***/ 399:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6655,7 +6655,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.attemptInstall = void 0;
 const os_1 = __nccwpck_require__(2037);
 const core = __importStar(__nccwpck_require__(2186));
-const platform_specific_1 = __nccwpck_require__(8880);
+const platform_specific_1 = __nccwpck_require__(4107);
 function chooseAppropriateInstallSteps(platform) {
     if (platform === 'darwin')
         return new platform_specific_1.DarwinInstallSteps();
@@ -6677,7 +6677,7 @@ exports.attemptInstall = attemptInstall;
 
 /***/ }),
 
-/***/ 3244:
+/***/ 7985:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6771,7 +6771,7 @@ exports.InstallSteps = InstallSteps;
 
 /***/ }),
 
-/***/ 3521:
+/***/ 6865:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6808,7 +6808,7 @@ const path_1 = __importDefault(__nccwpck_require__(1017));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const exec = __importStar(__nccwpck_require__(1514));
 const promises_1 = __importDefault(__nccwpck_require__(3292));
-const abstract_install_steps_1 = __nccwpck_require__(3244);
+const abstract_install_steps_1 = __nccwpck_require__(7985);
 class DarwinInstallSteps extends abstract_install_steps_1.InstallSteps {
     getExecutablePath(directory) {
         return path_1.default.join(directory, `steamcmd.sh`);
@@ -6846,26 +6846,26 @@ exports.DarwinInstallSteps = DarwinInstallSteps;
 
 /***/ }),
 
-/***/ 8880:
+/***/ 4107:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WindowsInstallSteps = exports.LinuxInstallSteps = exports.DarwinInstallSteps = exports.InstallSteps = void 0;
-var abstract_install_steps_1 = __nccwpck_require__(3244);
+var abstract_install_steps_1 = __nccwpck_require__(7985);
 Object.defineProperty(exports, "InstallSteps", ({ enumerable: true, get: function () { return abstract_install_steps_1.InstallSteps; } }));
-var darwin_install_steps_1 = __nccwpck_require__(3521);
+var darwin_install_steps_1 = __nccwpck_require__(6865);
 Object.defineProperty(exports, "DarwinInstallSteps", ({ enumerable: true, get: function () { return darwin_install_steps_1.DarwinInstallSteps; } }));
-var linux_install_steps_1 = __nccwpck_require__(6287);
+var linux_install_steps_1 = __nccwpck_require__(6937);
 Object.defineProperty(exports, "LinuxInstallSteps", ({ enumerable: true, get: function () { return linux_install_steps_1.LinuxInstallSteps; } }));
-var windows_install_steps_1 = __nccwpck_require__(888);
+var windows_install_steps_1 = __nccwpck_require__(4975);
 Object.defineProperty(exports, "WindowsInstallSteps", ({ enumerable: true, get: function () { return windows_install_steps_1.WindowsInstallSteps; } }));
 
 
 /***/ }),
 
-/***/ 6287:
+/***/ 6937:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6903,7 +6903,7 @@ const exec = __importStar(__nccwpck_require__(1514));
 const core = __importStar(__nccwpck_require__(2186));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const promises_1 = __importDefault(__nccwpck_require__(3292));
-const abstract_install_steps_1 = __nccwpck_require__(3244);
+const abstract_install_steps_1 = __nccwpck_require__(7985);
 class LinuxInstallSteps extends abstract_install_steps_1.InstallSteps {
     getExecutablePath(directory) {
         return path_1.default.join(directory, `steamcmd.sh`);
@@ -6966,7 +6966,7 @@ exports.LinuxInstallSteps = LinuxInstallSteps;
 
 /***/ }),
 
-/***/ 888:
+/***/ 4975:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -7003,7 +7003,7 @@ const path_1 = __importDefault(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
 const toolCache = __importStar(__nccwpck_require__(7784));
 const exec = __importStar(__nccwpck_require__(1514));
-const abstract_install_steps_1 = __nccwpck_require__(3244);
+const abstract_install_steps_1 = __nccwpck_require__(7985);
 class WindowsInstallSteps extends abstract_install_steps_1.InstallSteps {
     static windowsPathToPosixPath(windowsPath) {
         return path_1.default.posix.format(path_1.default.win32.parse(windowsPath));
