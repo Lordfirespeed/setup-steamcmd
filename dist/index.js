@@ -6728,10 +6728,7 @@ class InstallSteps {
     }
     getDownloadUrl() {
         const archiveName = this.getArchiveName();
-        return [
-            `https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`,
-            archiveName
-        ];
+        return [`https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`, archiveName];
     }
     getTempDirectory() {
         if (process.env['RUNNER_TEMP'] === undefined) {
