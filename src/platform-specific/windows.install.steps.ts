@@ -25,9 +25,7 @@ export class WindowsInstallSteps extends InstallSteps {
   } {
     return {
       directory: WindowsInstallSteps.windowsPathToPosixPath(installDir),
-      executable: WindowsInstallSteps.windowsPathToPosixPath(
-        this.getExecutablePath(installDir)
-      ),
+      executable: WindowsInstallSteps.windowsPathToPosixPath(this.getExecutablePath(installDir)),
       binDirectory: WindowsInstallSteps.windowsPathToPosixPath(installDir)
     }
   }
@@ -51,8 +49,6 @@ export class WindowsInstallSteps extends InstallSteps {
       return
     }
 
-    throw Error(
-      'SteamCMD first-run test yielded an unexpected exit code. Aborting.'
-    )
+    throw Error('SteamCMD first-run test yielded an unexpected exit code. Aborting.')
   }
 }

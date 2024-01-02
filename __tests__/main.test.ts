@@ -34,16 +34,9 @@ let findToolMock: jest.SpyInstance
 let downloadToolMock: jest.SpyInstance
 let extractTarMock: jest.SpyInstance<
   Promise<string>,
-  [
-    file: string,
-    dest?: string | undefined,
-    flags?: string | string[] | undefined
-  ]
+  [file: string, dest?: string | undefined, flags?: string | string[] | undefined]
 >
-let extractZipMock: jest.SpyInstance<
-  Promise<string>,
-  [file: string, dest?: string | undefined]
->
+let extractZipMock: jest.SpyInstance<Promise<string>, [file: string, dest?: string | undefined]>
 let cacheDirMock: jest.SpyInstance
 
 // Mock the GitHub Actions execution library
@@ -64,21 +57,15 @@ describe('action', () => {
 
   function mockWindowsImplementations() {
     const temp_dir = process.env.RUNNER_TEMP
-    if (!temp_dir)
-      throw new Error('$RUNNER_TEMP must be defined to mock implementations')
+    if (!temp_dir) throw new Error('$RUNNER_TEMP must be defined to mock implementations')
 
-    downloadToolMock.mockImplementation(
-      async (url, dest) => dest ?? path.win32.join(temp_dir, '[download-uuid')
-    )
+    downloadToolMock.mockImplementation(async (url, dest) => dest ?? path.win32.join(temp_dir, '[download-uuid'))
     extractTarMock.mockImplementation(
-      async (archivePath, dest) =>
-        dest ?? path.win32.join(temp_dir, '[extract-tar-uuid]')
+      async (archivePath, dest) => dest ?? path.win32.join(temp_dir, '[extract-tar-uuid]')
     )
     extractZipMock.mockImplementation(async (archivePath, dest) => {
       if (!archivePath.endsWith('.zip')) {
-        throw new Error(
-          'Windows refused to unpack provided archive filename as it does not have a .zip file extension'
-        )
+        throw new Error('Windows refused to unpack provided archive filename as it does not have a .zip file extension')
       }
       return dest ?? path.win32.join(temp_dir, '[extract-zip-uuid]')
     })
@@ -89,19 +76,14 @@ describe('action', () => {
 
   function mockPosixImplementations() {
     const temp_dir = process.env.RUNNER_TEMP
-    if (!temp_dir)
-      throw new Error('$RUNNER_TEMP must be defined to mock implementations')
+    if (!temp_dir) throw new Error('$RUNNER_TEMP must be defined to mock implementations')
 
-    downloadToolMock.mockImplementation(
-      async (url, dest) => dest ?? path.posix.join(temp_dir, '[download-uuid]')
-    )
+    downloadToolMock.mockImplementation(async (url, dest) => dest ?? path.posix.join(temp_dir, '[download-uuid]'))
     extractTarMock.mockImplementation(
-      async (archivePath, dest) =>
-        dest ?? path.posix.join(temp_dir, '[extract-tar-uuid]')
+      async (archivePath, dest) => dest ?? path.posix.join(temp_dir, '[extract-tar-uuid]')
     )
     extractZipMock.mockImplementation(
-      async (archivePath, dest) =>
-        dest ?? path.posix.join(temp_dir, '[extract-zip-uuid]')
+      async (archivePath, dest) => dest ?? path.posix.join(temp_dir, '[extract-zip-uuid]')
     )
     cacheDirMock.mockImplementation(async (sourceDir, tool, version, arch) =>
       path.posix.join('/', '[tool-cache]', tool, version, arch || '')
@@ -120,9 +102,7 @@ describe('action', () => {
     addPathMock = jest.spyOn(core, 'addPath').mockImplementation()
 
     findToolMock = jest.spyOn(toolCache, 'find').mockReturnValue('')
-    downloadToolMock = jest
-      .spyOn(toolCache, 'downloadTool')
-      .mockImplementation()
+    downloadToolMock = jest.spyOn(toolCache, 'downloadTool').mockImplementation()
     extractTarMock = jest.spyOn(toolCache, 'extractTar').mockImplementation()
     extractZipMock = jest.spyOn(toolCache, 'extractZip').mockImplementation()
     cacheDirMock = jest.spyOn(toolCache, 'cacheDir').mockImplementation()
@@ -154,14 +134,8 @@ describe('action', () => {
       await main.attemptInstall()
       expect(runMock).toHaveReturned()
 
-      expect(downloadToolMock).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String)
-      )
-      expect(extractZipMock).toHaveBeenCalledWith(
-        await downloadToolMock.mock.results[0].value,
-        expect.any(String)
-      )
+      expect(downloadToolMock).toHaveBeenCalledWith(expect.any(String), expect.any(String))
+      expect(extractZipMock).toHaveBeenCalledWith(await downloadToolMock.mock.results[0].value, expect.any(String))
       expect(cacheDirMock).toHaveBeenCalledWith(
         await extractZipMock.mock.results[0].value,
         expect.stringMatching(/^steamcmd$/i),
@@ -171,11 +145,7 @@ describe('action', () => {
 
       const installDir = await cacheDirMock.mock.results[0].value
       const executableFile = path.win32.join(installDir, 'steamcmd.exe')
-      expect(execMock).toHaveBeenCalledWith(
-        executableFile,
-        expect.anything(),
-        expect.anything()
-      )
+      expect(execMock).toHaveBeenCalledWith(executableFile, expect.anything(), expect.anything())
     })
 
     runCommonTests('Windows', 'win32')
@@ -192,14 +162,8 @@ describe('action', () => {
       await main.attemptInstall()
       expect(runMock).toHaveReturned()
 
-      expect(downloadToolMock).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String)
-      )
-      expect(extractTarMock).toHaveBeenCalledWith(
-        await downloadToolMock.mock.results[0].value,
-        expect.any(String)
-      )
+      expect(downloadToolMock).toHaveBeenCalledWith(expect.any(String), expect.any(String))
+      expect(extractTarMock).toHaveBeenCalledWith(await downloadToolMock.mock.results[0].value, expect.any(String))
       expect(cacheDirMock).toHaveBeenCalledWith(
         await extractTarMock.mock.results[0].value,
         expect.stringMatching(/^steamcmd$/i),
@@ -209,11 +173,7 @@ describe('action', () => {
 
       const installDir = await cacheDirMock.mock.results[0].value
       const executableFile = path.posix.join(installDir, 'steamcmd.sh')
-      expect(execMock).toHaveBeenCalledWith(
-        executableFile,
-        expect.anything(),
-        expect.anything()
-      )
+      expect(execMock).toHaveBeenCalledWith(executableFile, expect.anything(), expect.anything())
     })
 
     it('spoofs steamCMD binary with shell script on MacOS', async () => {
@@ -221,21 +181,12 @@ describe('action', () => {
       expect(runMock).toHaveReturned()
 
       expect(cacheDirMock).toHaveReturned()
-      const binariesDirectory = path.posix.join(
-        await cacheDirMock.mock.results[0].value,
-        'bin'
-      )
+      const binariesDirectory = path.posix.join(await cacheDirMock.mock.results[0].value, 'bin')
       const shellScriptFilepath = path.posix.join(binariesDirectory, 'steamcmd')
 
       expect(mkdirMock).toHaveBeenCalledWith(binariesDirectory)
-      expect(writeFileMock).toHaveBeenCalledWith(
-        shellScriptFilepath,
-        expect.stringMatching(/^#!\/bin\/bash\n/m)
-      )
-      expect(chmodMock).toHaveBeenCalledWith(
-        shellScriptFilepath,
-        expect.anything()
-      )
+      expect(writeFileMock).toHaveBeenCalledWith(shellScriptFilepath, expect.stringMatching(/^#!\/bin\/bash\n/m))
+      expect(chmodMock).toHaveBeenCalledWith(shellScriptFilepath, expect.anything())
     })
 
     runCommonTests('MacOS', 'darwin')
@@ -252,14 +203,8 @@ describe('action', () => {
       await main.attemptInstall()
       expect(runMock).toHaveReturned()
 
-      expect(downloadToolMock).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String)
-      )
-      expect(extractTarMock).toHaveBeenCalledWith(
-        await downloadToolMock.mock.results[0].value,
-        expect.any(String)
-      )
+      expect(downloadToolMock).toHaveBeenCalledWith(expect.any(String), expect.any(String))
+      expect(extractTarMock).toHaveBeenCalledWith(await downloadToolMock.mock.results[0].value, expect.any(String))
       expect(cacheDirMock).toHaveBeenCalledWith(
         await extractTarMock.mock.results[0].value,
         expect.stringMatching(/^steamcmd$/i),
@@ -269,11 +214,7 @@ describe('action', () => {
 
       const installDir = await cacheDirMock.mock.results[0].value
       const executableFile = path.posix.join(installDir, 'steamcmd.sh')
-      expect(execMock).toHaveBeenCalledWith(
-        executableFile,
-        expect.anything(),
-        expect.anything()
-      )
+      expect(execMock).toHaveBeenCalledWith(executableFile, expect.anything(), expect.anything())
     })
 
     it('spoofs steamCMD binary with shell script on Linux', async () => {
@@ -281,30 +222,18 @@ describe('action', () => {
       expect(runMock).toHaveReturned()
 
       expect(cacheDirMock).toHaveReturned()
-      const binariesDirectory = path.posix.join(
-        await cacheDirMock.mock.results[0].value,
-        'bin'
-      )
+      const binariesDirectory = path.posix.join(await cacheDirMock.mock.results[0].value, 'bin')
       const shellScriptFilepath = path.posix.join(binariesDirectory, 'steamcmd')
 
       expect(mkdirMock).toHaveBeenCalledWith(binariesDirectory)
-      expect(writeFileMock).toHaveBeenCalledWith(
-        shellScriptFilepath,
-        expect.stringMatching(/^#!\/bin\/bash\n/m)
-      )
-      expect(chmodMock).toHaveBeenCalledWith(
-        shellScriptFilepath,
-        expect.anything()
-      )
+      expect(writeFileMock).toHaveBeenCalledWith(shellScriptFilepath, expect.stringMatching(/^#!\/bin\/bash\n/m))
+      expect(chmodMock).toHaveBeenCalledWith(shellScriptFilepath, expect.anything())
     })
 
     runCommonTests('Linux', 'linux')
   })
 
-  function runCommonTests(
-    platformName: string,
-    platformIdentifier: NodeJS.Platform
-  ) {
+  function runCommonTests(platformName: string, platformIdentifier: NodeJS.Platform) {
     beforeEach(() => {
       platform.mockReturnValue(platformIdentifier)
     })
@@ -314,9 +243,7 @@ describe('action', () => {
       expect(runMock).toHaveReturned()
 
       expect(downloadToolMock).toHaveBeenCalled()
-      const parseDownloadUrl = jest.fn(
-        () => new URL(downloadToolMock.mock.calls[0][0])
-      )
+      const parseDownloadUrl = jest.fn(() => new URL(downloadToolMock.mock.calls[0][0]))
       parseDownloadUrl()
       expect(parseDownloadUrl).not.toThrow()
     })
@@ -326,14 +253,8 @@ describe('action', () => {
       expect(runMock).toHaveReturned()
 
       // Verify that all core library functions were called correctly
-      expect(setOutputMock).toHaveBeenCalledWith(
-        'directory',
-        expect.any(String)
-      )
-      expect(setOutputMock).toHaveBeenCalledWith(
-        'executable',
-        expect.any(String)
-      )
+      expect(setOutputMock).toHaveBeenCalledWith('directory', expect.any(String))
+      expect(setOutputMock).toHaveBeenCalledWith('executable', expect.any(String))
     })
 
     it(`adds binaries directory to $PATH on ${platformName}`, async () => {
@@ -345,24 +266,16 @@ describe('action', () => {
     })
   }
 
-  describe.each<NodeJS.Platform>([
-    'aix',
-    'freebsd',
-    'cygwin',
-    'openbsd',
-    'netbsd',
-    'sunos',
-    'android',
-    'haiku'
-  ])('unsupported platforms', platformIdentifier => {
-    beforeEach(() => {
-      platform.mockReturnValue(platformIdentifier)
-    })
+  describe.each<NodeJS.Platform>(['aix', 'freebsd', 'cygwin', 'openbsd', 'netbsd', 'sunos', 'android', 'haiku'])(
+    'unsupported platforms',
+    platformIdentifier => {
+      beforeEach(() => {
+        platform.mockReturnValue(platformIdentifier)
+      })
 
-    it(`throws when platform is '${platformIdentifier}'`, async () => {
-      await expect(async () => await main.attemptInstall()).rejects.toThrow(
-        'Unsupported platform.'
-      )
-    })
-  })
+      it(`throws when platform is '${platformIdentifier}'`, async () => {
+        await expect(async () => await main.attemptInstall()).rejects.toThrow('Unsupported platform.')
+      })
+    }
+  )
 })

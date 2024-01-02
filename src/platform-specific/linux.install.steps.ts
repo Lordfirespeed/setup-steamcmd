@@ -17,11 +17,7 @@ export class LinuxInstallSteps extends InstallSteps {
 
   static apt_dependencies: string[] = ['lib32gcc-s1']
   async installDependencies(): Promise<void> {
-    const aptUpdateStatusCode = await exec.exec(
-      'sudo apt-get',
-      ['--yes', 'update'],
-      { ignoreReturnCode: true }
-    )
+    const aptUpdateStatusCode = await exec.exec('sudo apt-get', ['--yes', 'update'], { ignoreReturnCode: true })
     if (aptUpdateStatusCode !== 0) {
       throw new Error("Couldn't update apt package index. Aborting.")
     }
@@ -34,9 +30,7 @@ export class LinuxInstallSteps extends InstallSteps {
     if (aptInstallStatusCode === 0) return
 
     const install_results = await Promise.allSettled(
-      LinuxInstallSteps.apt_dependencies.map(
-        this.checkDependencyAlreadyInstalled.bind(this)
-      )
+      LinuxInstallSteps.apt_dependencies.map(this.checkDependencyAlreadyInstalled.bind(this))
     )
 
     const rejection_reasons = install_results
@@ -47,9 +41,7 @@ export class LinuxInstallSteps extends InstallSteps {
     throw rejection_reasons.pop()
   }
 
-  async checkDependencyAlreadyInstalled(
-    packageSpecifier: string
-  ): Promise<void> {
+  async checkDependencyAlreadyInstalled(packageSpecifier: string): Promise<void> {
     const status = await exec.exec(
       '/usr/bin/dpkg-query',
       ['--show', "--showformat='${db:Status-Status}\\n'", packageSpecifier],
@@ -89,10 +81,7 @@ export class LinuxInstallSteps extends InstallSteps {
     const binExe = path.join(binDir, 'steamcmd')
 
     await fs.mkdir(binDir)
-    await fs.writeFile(
-      binExe,
-      `#!/bin/bash\nexec "${installDir}/steamcmd.sh" "$@"`
-    )
+    await fs.writeFile(binExe, `#!/bin/bash\nexec "${installDir}/steamcmd.sh" "$@"`)
     await fs.chmod(binExe, 0o755)
   }
 

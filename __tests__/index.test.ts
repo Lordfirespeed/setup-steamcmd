@@ -5,9 +5,7 @@
 import * as installation from '../src/main'
 
 // Mock the action's entrypoint
-const runMock = jest
-  .spyOn(installation, 'attemptInstall')
-  .mockImplementation(() => Promise.resolve())
+const runMock = jest.spyOn(installation, 'attemptInstall').mockImplementation(() => Promise.resolve())
 
 describe('index', () => {
   it('calls run when imported', async () => {

@@ -39,10 +39,7 @@ export class DarwinInstallSteps extends InstallSteps {
     const binExe = path.join(binDir, 'steamcmd')
 
     await fs.mkdir(binDir)
-    await fs.writeFile(
-      binExe,
-      `#!/bin/bash\nexec "${installDir}/steamcmd.sh" "$@"`
-    )
+    await fs.writeFile(binExe, `#!/bin/bash\nexec "${installDir}/steamcmd.sh" "$@"`)
     await fs.chmod(binExe, 0o755)
   }
 

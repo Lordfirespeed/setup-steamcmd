@@ -1,16 +1,9 @@
 import { platform } from 'os'
 import * as core from '@actions/core'
 
-import {
-  InstallSteps,
-  DarwinInstallSteps,
-  LinuxInstallSteps,
-  WindowsInstallSteps
-} from './platform-specific'
+import { InstallSteps, DarwinInstallSteps, LinuxInstallSteps, WindowsInstallSteps } from './platform-specific'
 
-function chooseAppropriateInstallSteps(
-  platform: NodeJS.Platform
-): InstallSteps {
+function chooseAppropriateInstallSteps(platform: NodeJS.Platform): InstallSteps {
   if (platform === 'darwin') return new DarwinInstallSteps()
 
   if (platform === 'linux') return new LinuxInstallSteps()

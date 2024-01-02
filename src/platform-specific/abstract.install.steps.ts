@@ -31,10 +31,7 @@ export abstract class InstallSteps {
 
   getDownloadUrl(): string[] {
     const archiveName = this.getArchiveName()
-    return [
-      `https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`,
-      archiveName
-    ]
+    return [`https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`, archiveName]
   }
 
   getTempDirectory(): string {
@@ -48,10 +45,7 @@ export abstract class InstallSteps {
     const [downloadUrl, archiveName] = this.getDownloadUrl()
 
     // Why we need to set the destination directory: https://github.com/CyberAndrii/setup-steamcmd/issues/5
-    return await toolCache.downloadTool(
-      downloadUrl,
-      path.join(this.getTempDirectory(), archiveName)
-    )
+    return await toolCache.downloadTool(downloadUrl, path.join(this.getTempDirectory(), archiveName))
   }
 
   async cacheInstalledTool(extractDir: string): Promise<string> {
